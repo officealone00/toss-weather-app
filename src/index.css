@@ -1,0 +1,86 @@
+/* ── 토스 디자인 시스템(TDS) 스타일 기반 ─────────────── */
+
+:root {
+  --toss-blue: #3182F6;
+  --toss-blue-light: #E8F3FF;
+  --toss-black: #191F28;
+  --toss-gray-900: #333D4B;
+  --toss-gray-700: #4E5968;
+  --toss-gray-500: #8B95A1;
+  --toss-gray-400: #B0B8C1;
+  --toss-gray-200: #E5E8EB;
+  --toss-gray-100: #F2F4F6;
+  --toss-gray-50: #F9FAFB;
+  --toss-white: #FFFFFF;
+  --toss-red: #F04452;
+  --toss-cyan: #00B2FF;
+  --toss-radius: 16px;
+  --toss-radius-sm: 12px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--toss-gray-50);
+  color: var(--toss-black);
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── 스크롤바 숨기기 ─────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ── 애니메이션 ──────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+.animate-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-in-delay {
+  animation: fadeIn 0.4s ease-out 0.1s both;
+}
+
+.animate-pulse { animation: pulse 1.5s ease-in-out infinite; }
+
+/* ── 스켈레톤 로딩 ───────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--toss-gray-100) 25%, var(--toss-gray-200) 50%, var(--toss-gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
