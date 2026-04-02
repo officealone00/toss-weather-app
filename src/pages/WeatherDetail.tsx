@@ -4,9 +4,9 @@ import {
   type AirGradeInfo,
   getPM25Grade, getPM10Grade, getCAIGrade, getUVGrade,
   getPM25Percent, getPM10Percent,
-  getFeelsLikeTemp, getWindDirectionText,
+  getFeelsLikeTemp,
 } from '@/lib/airquality';
-import { type CurrentWeather, getSkyText, getWeatherEmoji } from '@/lib/weather';
+import { type CurrentWeather, getSkyText, getWeatherEmoji, getWindDirectionText } from '@/lib/weather';
 
 interface Props {
   current: CurrentWeather | null;
@@ -24,7 +24,6 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
   const feelsLikeDiff = feelsLike - Math.round(current.temperature);
   const feelsLikeLabel = feelsLikeDiff > 0 ? `실제보다 ${feelsLikeDiff}° 높음` : feelsLikeDiff < 0 ? `실제보다 ${Math.abs(feelsLikeDiff)}° 낮음` : '실제와 동일';
 
-  // UV 추정 (시간/하늘 상태 기반 간이 추정 — 실제 UV API 연동 시 대체)
   const estimatedUV = pty > 0 ? 1 : sky === 1 ? (hour >= 10 && hour <= 14 ? 7 : hour >= 8 && hour <= 16 ? 5 : 2) : sky === 3 ? 3 : 2;
   const uvInfo = getUVGrade(estimatedUV);
 
@@ -32,7 +31,6 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
     <div style={styles.container}>
       <div style={{ padding: '0 20px', paddingTop: 'calc(var(--safe-top) + 16px)', paddingBottom: 'calc(var(--safe-bottom) + 24px)' }}>
 
-        {/* 뒤로가기 헤더 */}
         <div style={styles.header} className="animate-in">
           <button onClick={onBack} style={styles.backBtn}>
             <svg width="20" height="20" fill="none" stroke="#191F28" strokeWidth="2" viewBox="0 0 24 24">
@@ -43,7 +41,6 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
           <div style={{ width: 40 }} />
         </div>
 
-        {/* 체감온도 카드 */}
         <div style={styles.card} className="animate-in">
           <div style={styles.cardHeader}>
             <span style={styles.cardIcon}>🌡️</span>
@@ -59,12 +56,10 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
           <span style={styles.cardSub}>{getSkyText(sky, pty)} {getWeatherEmoji(sky, pty, hour)}</span>
         </div>
 
-        {/* 미세먼지 섹션 */}
         <div style={styles.sectionTitle} className="animate-in">대기질</div>
 
         {airData ? (
           <div className="animate-in">
-            {/* 통합 대기환경지수 */}
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <span style={styles.cardIcon}>🌍</span>
@@ -76,25 +71,8 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
               </div>
             </div>
 
-            {/* PM2.5 초미세먼지 */}
-            <DustGauge
-              label="초미세먼지 (PM2.5)"
-              value={airData.pm25}
-              unit="μg/m³"
-              gradeInfo={getPM25Grade(airData.pm25)}
-              percent={getPM25Percent(airData.pm25)}
-              thresholds={['0', '15', '35', '75', '150']}
-            />
-
-            {/* PM10 미세먼지 */}
-            <DustGauge
-              label="미세먼지 (PM10)"
-              value={airData.pm10}
-              unit="μg/m³"
-              gradeInfo={getPM10Grade(airData.pm10)}
-              percent={getPM10Percent(airData.pm10)}
-              thresholds={['0', '30', '80', '150', '300']}
-            />
+            <DustGauge label="초미세먼지 (PM2.5)" value={airData.pm25} unit="μg/m³" gradeInfo={getPM25Grade(airData.pm25)} percent={getPM25Percent(airData.pm25)} thresholds={['0', '15', '35', '75', '150']} />
+            <DustGauge label="미세먼지 (PM10)" value={airData.pm10} unit="μg/m³" gradeInfo={getPM10Grade(airData.pm10)} percent={getPM10Percent(airData.pm10)} thresholds={['0', '30', '80', '150', '300']} />
           </div>
         ) : (
           <div style={styles.card} className="animate-in">
@@ -107,7 +85,6 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
           </div>
         )}
 
-        {/* UV 지수 */}
         <div style={styles.card} className="animate-in">
           <div style={styles.cardHeader}>
             <span style={styles.cardIcon}>☀️</span>
@@ -124,7 +101,6 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
           </span>
         </div>
 
-        {/* 상세 기상 정보 */}
         <div style={styles.sectionTitle} className="animate-in">상세 정보</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="animate-in">
           <InfoCard icon="💧" label="습도" value={`${current.humidity}%`} sub={current.humidity >= 80 ? '매우 높음' : current.humidity >= 60 ? '높음' : current.humidity >= 40 ? '적정' : '건조'} />
@@ -132,16 +108,12 @@ export default function WeatherDetail({ current, airData, sky, pty, hour, onBack
           <InfoCard icon="☔" label="강수" value={current.precipitation === '강수없음' || current.precipitation === '0' ? '없음' : current.precipitation} sub={pty === 0 ? '강수 없음' : pty === 1 ? '비' : pty === 3 ? '눈' : '혼합'} />
           <InfoCard icon="🧭" label="풍향" value={`${current.windDirection}°`} sub={getWindDirectionText(current.windDirection)} />
         </div>
-
       </div>
     </div>
   );
 }
 
-// ── 미세먼지 게이지 컴포넌트 ─────────────────────────────────
-function DustGauge({ label, value, unit, gradeInfo, percent, thresholds }: {
-  label: string; value: number; unit: string; gradeInfo: AirGradeInfo; percent: number; thresholds: string[];
-}) {
+function DustGauge({ label, value, unit, gradeInfo, percent, thresholds }: { label: string; value: number; unit: string; gradeInfo: AirGradeInfo; percent: number; thresholds: string[]; }) {
   return (
     <div style={styles.card}>
       <div style={styles.cardHeader}>
@@ -152,25 +124,12 @@ function DustGauge({ label, value, unit, gradeInfo, percent, thresholds }: {
         <span style={{ ...styles.dustValue, color: gradeInfo.color }}>{value}</span>
         <span style={styles.dustUnit}>{unit}</span>
       </div>
-      {/* 색상 게이지 바 */}
       <div style={styles.gaugeTrack}>
         <div style={styles.gaugeGood} />
         <div style={styles.gaugeModerate} />
         <div style={styles.gaugeBad} />
         <div style={styles.gaugeVeryBad} />
-        {/* 인디케이터 */}
-        <div style={{
-          position: 'absolute',
-          left: `${Math.min(97, Math.max(2, percent))}%`,
-          top: -3,
-          width: 12,
-          height: 12,
-          borderRadius: 6,
-          background: gradeInfo.color,
-          border: '2px solid #FFFFFF',
-          transform: 'translateX(-50%)',
-          transition: 'left 0.6s ease-out',
-        }} />
+        <div style={{ position: 'absolute' as const, left: `${Math.min(97, Math.max(2, percent))}%`, top: -3, width: 12, height: 12, borderRadius: 6, background: gradeInfo.color, border: '2px solid #FFFFFF', transform: 'translateX(-50%)', transition: 'left 0.6s ease-out' }} />
       </div>
       <div style={styles.gaugeLabels}>
         {thresholds.map((t, i) => <span key={i} style={styles.gaugeLabel}>{t}</span>)}
@@ -179,40 +138,27 @@ function DustGauge({ label, value, unit, gradeInfo, percent, thresholds }: {
   );
 }
 
-// ── 등급 뱃지 ────────────────────────────────────────────────
 function GradeBadge({ info, customLabel }: { info: AirGradeInfo; customLabel?: string }) {
   return (
-    <span style={{
-      fontSize: 12, fontWeight: 500,
-      padding: '3px 10px', borderRadius: 20,
-      background: info.bgColor, color: info.textColor,
-      marginLeft: 'auto',
-    }}>
+    <span style={{ fontSize: 12, fontWeight: 500, padding: '3px 10px', borderRadius: 20, background: info.bgColor, color: info.textColor, marginLeft: 'auto' }}>
       {info.emoji} {customLabel || info.label}
     </span>
   );
 }
 
-// ── UV 바 ────────────────────────────────────────────────────
 function UVBar({ value }: { value: number }) {
   const percent = Math.min(100, (value / 11) * 100);
   return (
-    <div style={{ ...styles.gaugeTrack, height: 6, margin: '12px 0 4px' }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '25%', background: '#3182F6', borderRadius: '3px 0 0 3px' }} />
-      <div style={{ position: 'absolute', left: '25%', top: 0, height: '100%', width: '25%', background: '#1D9E75' }} />
-      <div style={{ position: 'absolute', left: '50%', top: 0, height: '100%', width: '25%', background: '#EF9F27' }} />
-      <div style={{ position: 'absolute', left: '75%', top: 0, height: '100%', width: '25%', background: '#F04452', borderRadius: '0 3px 3px 0' }} />
-      <div style={{
-        position: 'absolute', left: `${Math.min(97, Math.max(2, percent))}%`, top: -4,
-        width: 14, height: 14, borderRadius: 7,
-        background: '#FFFFFF', border: `3px solid ${value <= 2 ? '#3182F6' : value <= 5 ? '#1D9E75' : value <= 7 ? '#EF9F27' : '#F04452'}`,
-        transform: 'translateX(-50%)', transition: 'left 0.6s ease-out',
-      }} />
+    <div style={{ position: 'relative' as const, height: 6, borderRadius: 3, background: '#F2F4F6', margin: '12px 0 4px', overflow: 'visible' as const }}>
+      <div style={{ position: 'absolute' as const, left: 0, top: 0, height: '100%', width: '25%', background: '#3182F6', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ position: 'absolute' as const, left: '25%', top: 0, height: '100%', width: '25%', background: '#1D9E75' }} />
+      <div style={{ position: 'absolute' as const, left: '50%', top: 0, height: '100%', width: '25%', background: '#EF9F27' }} />
+      <div style={{ position: 'absolute' as const, left: '75%', top: 0, height: '100%', width: '25%', background: '#F04452', borderRadius: '0 3px 3px 0' }} />
+      <div style={{ position: 'absolute' as const, left: `${Math.min(97, Math.max(2, percent))}%`, top: -4, width: 14, height: 14, borderRadius: 7, background: '#FFFFFF', border: `3px solid ${value <= 2 ? '#3182F6' : value <= 5 ? '#1D9E75' : value <= 7 ? '#EF9F27' : '#F04452'}`, transform: 'translateX(-50%)', transition: 'left 0.6s ease-out' }} />
     </div>
   );
 }
 
-// ── 정보 카드 ────────────────────────────────────────────────
 function InfoCard({ icon, label, value, sub }: { icon: string; label: string; value: string; sub: string }) {
   return (
     <div style={styles.card}>
@@ -226,7 +172,6 @@ function InfoCard({ icon, label, value, sub }: { icon: string; label: string; va
   );
 }
 
-// ── 스타일 ───────────────────────────────────────────────────
 const styles: Record<string, CSSProperties> = {
   container: { minHeight: '100vh', background: '#F9FAFB' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
@@ -240,24 +185,24 @@ const styles: Record<string, CSSProperties> = {
   cardSub: { fontSize: 13, color: '#8B95A1', marginTop: 4, display: 'block' },
   feelsLikeRow: { display: 'flex', alignItems: 'center', gap: 16 },
   feelsLikeNum: { fontSize: 48, fontWeight: 200, color: '#191F28', letterSpacing: -2, lineHeight: 1 },
-  feelsLikeMeta: { display: 'flex', flexDirection: 'column', gap: 2 },
+  feelsLikeMeta: { display: 'flex', flexDirection: 'column' as const, gap: 2 },
   feelsLikeActual: { fontSize: 14, color: '#4E5968', fontWeight: 500 },
   feelsLikeDiff: { fontSize: 13, color: '#8B95A1' },
   stationInfo: { fontSize: 12, color: '#B0B8C1' },
   dustValueRow: { display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 12 },
   dustValue: { fontSize: 32, fontWeight: 500, lineHeight: 1 },
   dustUnit: { fontSize: 13, color: '#B0B8C1' },
-  gaugeTrack: { position: 'relative', height: 6, borderRadius: 3, background: '#F2F4F6', margin: '0 0 8px', overflow: 'visible' },
-  gaugeGood: { position: 'absolute', left: 0, top: 0, height: '100%', width: '25%', background: '#3182F6', borderRadius: '3px 0 0 3px' },
-  gaugeModerate: { position: 'absolute', left: '25%', top: 0, height: '100%', width: '25%', background: '#1D9E75' },
-  gaugeBad: { position: 'absolute', left: '50%', top: 0, height: '100%', width: '25%', background: '#EF9F27' },
-  gaugeVeryBad: { position: 'absolute', left: '75%', top: 0, height: '100%', width: '25%', background: '#F04452', borderRadius: '0 3px 3px 0' },
+  gaugeTrack: { position: 'relative' as const, height: 6, borderRadius: 3, background: '#F2F4F6', margin: '0 0 8px', overflow: 'visible' as const },
+  gaugeGood: { position: 'absolute' as const, left: 0, top: 0, height: '100%', width: '25%', background: '#3182F6', borderRadius: '3px 0 0 3px' },
+  gaugeModerate: { position: 'absolute' as const, left: '25%', top: 0, height: '100%', width: '25%', background: '#1D9E75' },
+  gaugeBad: { position: 'absolute' as const, left: '50%', top: 0, height: '100%', width: '25%', background: '#EF9F27' },
+  gaugeVeryBad: { position: 'absolute' as const, left: '75%', top: 0, height: '100%', width: '25%', background: '#F04452', borderRadius: '0 3px 3px 0' },
   gaugeLabels: { display: 'flex', justifyContent: 'space-between' },
   gaugeLabel: { fontSize: 11, color: '#B0B8C1' },
   uvRow: { display: 'flex', alignItems: 'baseline', marginBottom: 4 },
   uvNum: { fontSize: 28, fontWeight: 500, color: '#191F28' },
   uvScale: { fontSize: 14, color: '#B0B8C1' },
-  noDataBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', gap: 4 },
+  noDataBox: { display: 'flex', flexDirection: 'column' as const, alignItems: 'center', padding: '20px 0', gap: 4 },
   noDataEmoji: { fontSize: 32, marginBottom: 8 },
   noDataText: { fontSize: 14, color: '#8B95A1' },
   noDataSub: { fontSize: 12, color: '#B0B8C1', marginTop: 4, fontFamily: 'monospace' },

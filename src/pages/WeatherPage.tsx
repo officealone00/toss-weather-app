@@ -8,11 +8,11 @@ import {
 import { showInterstitialAd } from '@/lib/ads';
 import { BannerAd, BannerAdPlaceholder } from '@/components/BannerAd';
 import { getAirQualityBySido, extractSidoName, getPM25Grade, getPM10Grade, type AirQualityData } from '@/lib/airquality';
-import { type SharedWeatherState } from '@/App';
+
 
 interface Props {
   onNavigateDetail: () => void;
-  onStateUpdate: (state: SharedWeatherState) => void;
+  onStateUpdate: (state: any) => void;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
