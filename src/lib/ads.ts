@@ -1,7 +1,7 @@
 export const AD_CONFIG = {
-  BANNER_AD_GROUP_ID: '',
-  INTERSTITIAL_AD_GROUP_ID: '',
-  REWARDED_AD_GROUP_ID: '',
+  BANNER_TOP_ID: 'ait.v2.live.7a0042240f4a41bb',
+  BANNER_BOTTOM_ID: 'ait.v2.live.7a0042240f4a41bb',
+  INTERSTITIAL_ID: 'ait.v2.live.ea9d6f49a0f1484d',
 };
 
 export function isAdConfigured(type: 'banner' | 'interstitial' | 'rewarded'): boolean {
