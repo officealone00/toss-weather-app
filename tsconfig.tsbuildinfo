@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/bannerad.tsx","./src/lib/ads.ts","./src/lib/airquality.ts","./src/lib/weather.ts","./src/pages/weatherdetail.tsx","./src/pages/weatherpage.tsx","./src/src/components/bannerad.tsx","./src/src/lib/ads.ts","./src/src/pages/weatherpage.tsx","./granite.config.ts","./vite.config.ts"],"version":"5.6.3"}

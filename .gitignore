@@ -3,3 +3,5 @@ dist
 *.ait
 .DS_Store
 *.local
+
+.granite

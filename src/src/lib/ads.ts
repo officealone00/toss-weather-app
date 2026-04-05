@@ -3,10 +3,11 @@ export const AD_CONFIG = {
   INTERSTITIAL_AD_GROUP_ID: 'ait.v2.live.ea9d6f49a0f1484d',
 };
 
-export function isAdConfigured(type: string): boolean {
-  if (type === 'banner') return AD_CONFIG.BANNER_AD_GROUP_ID.length > 0;
-  if (type === 'interstitial') return AD_CONFIG.INTERSTITIAL_AD_GROUP_ID.length > 0;
-  return false;
+export function isAdConfigured(type: 'banner' | 'interstitial'): boolean {
+  switch (type) {
+    case 'banner': return AD_CONFIG.BANNER_AD_GROUP_ID.length > 0;
+    case 'interstitial': return AD_CONFIG.INTERSTITIAL_AD_GROUP_ID.length > 0;
+  }
 }
 
 export async function showInterstitialAd(): Promise<boolean> {
